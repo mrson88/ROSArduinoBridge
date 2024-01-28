@@ -1,6 +1,10 @@
 
 
 
+#define SERVOMIN  125 // this is the 'minimum' pulse length count (out of 4096)
+#define SERVOMAX  575 // this is the 'maximum' pulse length count (out of 4096)
+
+
 #define USE_BASE      // Enable the base controller code
 //#undef USE_BASE     // Disable the base controller code
 
@@ -22,8 +26,8 @@
 #define L298_MOTOR_DRIVER
 #endif
 
-//#define USE_SERVOS  // Enable use of PWM servos as defined in servos.h
-#undef USE_SERVOS     // Disable use of PWM servos
+#define USE_SERVOS  // Enable use of PWM servos as defined in servos.h
+
 
 /* Serial port baud rate */
 #define BAUDRATE     57600
@@ -143,11 +147,11 @@ int runCommand() {
       break;
 #ifdef USE_SERVOS
     case SERVO_WRITE:
-      servos[arg1].setTargetPosition(arg2);
+      SweepServo().setTargetPosition(arg1,arg2);
       Serial.println("OK");
       break;
     case SERVO_READ:
-      Serial.println(servos[arg1].getServo().read());
+//      Serial.println(SweepServo().getServo(arg1));/
       break;
 #endif
 
@@ -235,11 +239,8 @@ void setup() {
   /* Attach servos if used */
 #ifdef USE_SERVOS
   int i;
-  for (i = 0; i < N_SERVOS; i++) {
-    servos[i].initServo(
-      servoPins[i],
-      stepDelay[i],
-      servoInitPosition[i]);
+  for (i = 0; i < 6; i++) {
+    SweepServo().setTargetPosition(i, servoInitPosition[i]);
   }
 #endif
 }
@@ -305,22 +306,19 @@ void loop() {
 #endif
 
   // Sweep servos
-#ifdef USE_SERVOS
-  int i;
-  for (i = 0; i < N_SERVOS; i++) {
-    if (Serial.available() > 0) {
-      servos[i].doSweep();
-    }
-    else {
-      int i;
-      for (i = 0; i < N_SERVOS; i++) {
-        servos[i].initServo(
-          servoPins[i],
-          stepDelay[i],
-          servoInitPosition[i]);
-      }
-    }
-
-  }
-#endif
+//#ifdef USE_SERVOS
+//  int i;
+//  for (i = 0; i < N_SERVOS; i++) {
+//    if (Serial.available() > 0) {
+//      servos[i].doSweep();
+//    }
+//    else {
+//      int i;
+//      for (i = 0; i < N_SERVOS; i++) {
+//        SweepServo().setTargetPosition(i, servoInitPosition[i])
+//      }
+//    }
+//
+//  }
+//#endif
 }

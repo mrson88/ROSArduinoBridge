@@ -1,16 +1,5 @@
-/***************************************************************
-   Servo Sweep - by Nathaniel Gallinger
-
-   Sweep servos one degree step at a time with a user defined
-   delay in between steps.  Supports changing direction 
-   mid-sweep.  Important for applications such as robotic arms
-   where the stock servo speed is too fast for the strength
-   of your system.
-
- *************************************************************/
 
 #ifdef USE_SERVOS
-
 
 // Constructor
 SweepServo::SweepServo()
@@ -23,11 +12,11 @@ SweepServo::SweepServo()
 
 // Init
 void SweepServo::initServo(
-    int servoPin,
-    int stepDelayMs,
-    int initPosition)
+  int servoPin,
+  int stepDelayMs,
+  int initPosition)
 {
-  this->servo.attach(servoPin);
+
   this->stepDelayMs = stepDelayMs;
   this->currentPositionDegrees = initPosition;
   this->targetPositionDegrees = initPosition;
@@ -37,7 +26,7 @@ void SweepServo::initServo(
 
 
 // Perform Sweep
-void SweepServo::doSweep()
+void SweepServo::doSweep(int servo, int angle)
 {
 
   // Get ellapsed time
@@ -48,11 +37,11 @@ void SweepServo::doSweep()
     // Check step direction
     if (this->targetPositionDegrees > this->currentPositionDegrees) {
       this->currentPositionDegrees++;
-      this->servo.write(this->currentPositionDegrees);
+      pwm.setPWM(servo, 0, angleToPulse(this->currentPositionDegrees));
     }
     else if (this->targetPositionDegrees < this->currentPositionDegrees) {
       this->currentPositionDegrees--;
-      this->servo.write(this->currentPositionDegrees);
+      pwm.setPWM(servo, 0, angleToPulse(this->currentPositionDegrees));
     }
     // if target == current position, do nothing
 
@@ -63,17 +52,25 @@ void SweepServo::doSweep()
 
 
 // Set a new target position
-void SweepServo::setTargetPosition(int position)
+void SweepServo::setTargetPosition(int servo, int position)
 {
-  this->targetPositionDegrees = position;
+  pwm.setPWM(servo, 0, angleToPulse(position) );
 }
 
 
 // Accessor for servo object
-Servo SweepServo::getServo()
+void SweepServo::getServo(int servo)
 {
-  return this->servo;
+  return servoInitPosition[servo];
 }
+
+int angleToPulse(int ang) {
+  int pulse = map(ang, 0, 180, SERVOMIN, SERVOMAX); // map angle of 0 to 180 to Servo min and Servo max
+  //   Serial.print("Angle: ");Serial.print(ang);
+  //   Serial.print(" pulse: ");Serial.println(pulse);
+  return pulse;
+}
+
 
 
 #endif
