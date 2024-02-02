@@ -52,22 +52,25 @@ void SweepServo::doSweep(int servo, int angle)
 
 
 // Set a new target position
-void SweepServo::setTargetPosition(int servo, int position)
+void SweepServo::setTargetPosition(int servo, int servo_position)
 {
-  pwm.setPWM(servo, 0, angleToPulse(position) );
+  pwm.setPWM(servo, 0, angleToPulse(servo_position) );
+  servoCurrentPosition[servo]=servo_position;
 }
 
 
 // Accessor for servo object
-void SweepServo::getServo(int servo)
+int SweepServo::getServo(int servo_Pin)
 {
-  return servoInitPosition[servo];
+  int position_pin;
+  position_pin=servoCurrentPosition[servo_Pin];
+  return position_pin;
 }
 
 int angleToPulse(int ang) {
   int pulse = map(ang, 0, 180, SERVOMIN, SERVOMAX); // map angle of 0 to 180 to Servo min and Servo max
-  //   Serial.print("Angle: ");Serial.print(ang);
-  //   Serial.print(" pulse: ");Serial.println(pulse);
+     Serial.print("Angle: ");Serial.print(ang);
+     Serial.print(" pulse: ");Serial.println(pulse);
   return pulse;
 }
 

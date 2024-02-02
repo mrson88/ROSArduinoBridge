@@ -1,10 +1,4 @@
 
-
-
-#define SERVOMIN  125 // this is the 'minimum' pulse length count (out of 4096)
-#define SERVOMAX  575 // this is the 'maximum' pulse length count (out of 4096)
-
-
 #define USE_BASE      // Enable the base controller code
 //#undef USE_BASE     // Disable the base controller code
 
@@ -147,11 +141,12 @@ int runCommand() {
       break;
 #ifdef USE_SERVOS
     case SERVO_WRITE:
-      SweepServo().setTargetPosition(arg1,arg2);
+      SweepServo().setTargetPosition(arg1, arg2);
       Serial.println("OK");
       break;
     case SERVO_READ:
-//      Serial.println(SweepServo().getServo(arg1));/
+
+      //      Serial.println(SweepServo().getServo(arg1));
       break;
 #endif
 
@@ -208,6 +203,9 @@ int runCommand() {
 /* Setup function--runs once at startup. */
 void setup() {
   Serial.begin(BAUDRATE);
+  pwm.begin();
+
+  pwm.setPWMFreq(60);  // Analog servos run at ~60 Hz updates
 
   // Initialize the motor controller if used */
 #ifdef USE_BASE
@@ -305,20 +303,19 @@ void loop() {
   }
 #endif
 
-  // Sweep servos
-//#ifdef USE_SERVOS
-//  int i;
-//  for (i = 0; i < N_SERVOS; i++) {
-//    if (Serial.available() > 0) {
-//      servos[i].doSweep();
-//    }
-//    else {
-//      int i;
-//      for (i = 0; i < N_SERVOS; i++) {
-//        SweepServo().setTargetPosition(i, servoInitPosition[i])
-//      }
-//    }
-//
-//  }
-//#endif
+  //   Sweep servos
+#ifdef USE_SERVOS
+  if (Serial.available() > 0) {
+    int i;
+    for (i = 0; i < N_SERVOS; i++) {
+      SweepServo().setTargetPosition(i, servoCurrentPosition[i]);
+    }
+  }
+  else {
+    int i;
+    for (i = 0; i < N_SERVOS; i++) {
+      SweepServo().setTargetPosition(i, servoCurrentPosition[i]);
+    }
+  }
+#endif
 }
